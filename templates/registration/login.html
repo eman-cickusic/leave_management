@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login · Leave Management Portal</title>
+    <style>
+        body { font-family: "Segoe UI", Arial, sans-serif; background: linear-gradient(135deg, #1d4ed8, #2563eb); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #1f2933; }
+        .card { background: white; width: min(420px, 95%); padding: 2.5rem; border-radius: 16px; box-shadow: 0 20px 45px rgba(15, 23, 42, 0.2); }
+        h1 { margin-top: 0; }
+        form { margin-top: 2rem; }
+        label { display: block; font-weight: 600; margin-bottom: 0.35rem; }
+        input { width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid #d1d5db; font-size: 1rem; margin-bottom: 1rem; }
+        button { width: 100%; padding: 0.85rem 1rem; border-radius: 8px; border: none; background: #2563eb; color: white; font-weight: 700; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; font-size: 1rem; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(37, 99, 235, 0.3); }
+        .errorlist { background: #fee2e2; color: #991b1b; padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; list-style: none; }
+        .help { font-size: 0.9rem; color: #6b7280; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Leave Management Portal</h1>
+        <p class="help">Enter your credentials to access the employee and manager workflow.</p>
+        {% if form.errors %}
+            <ul class="errorlist">
+                <li>Invalid username or password. Please try again.</li>
+            </ul>
+        {% endif %}
+        <form method="post" autocomplete="on">
+            {% csrf_token %}
+            <label for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+
+            <label for="{{ form.password.id_for_label }}">Password</label>
+            {{ form.password }}
+
+            <input type="hidden" name="next" value="{{ next }}">
+            <button type="submit">Log In</button>
+        </form>
+        <p class="help" style="margin-top:1rem;">Need an account? Ask your administrator to create one via the Django admin panel.</p>
+    </div>
+</body>
+</html>

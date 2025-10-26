@@ -1,0 +1,82 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Leave Management{% endblock %}</title>
+    <style>
+        :root { font-family: "Segoe UI", Arial, sans-serif; background: #f3f4f6; color: #1f2933; }
+        body { margin: 0; }
+        header { background: #1d4ed8; color: white; padding: 1rem 2rem; }
+        nav a { color: white; margin-right: 1.5rem; text-decoration: none; font-weight: 600; }
+        nav a.active { text-decoration: underline; }
+        .container { padding: 2rem; max-width: 1080px; margin: auto; }
+        .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); margin-bottom: 1.5rem; }
+        .card h2 { margin-top: 0; }
+        .grid { display: grid; gap: 1.5rem; }
+        @media (min-width: 900px) {
+            .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        table { width: 100%; border-collapse: collapse; }
+        table th, table td { border-bottom: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
+        table th { background: #eff6ff; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+        .badge.pending { background: #fef3c7; color: #92400e; }
+        .badge.approved { background: #dcfce7; color: #166534; }
+        .badge.rejected { background: #fee2e2; color: #991b1b; }
+        .btn { display: inline-block; padding: 0.6rem 1.1rem; border-radius: 8px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 12px rgba(37, 99, 235, 0.15); }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-secondary { background: #6b7280; color: white; }
+        .btn-approve { background: #16a34a; color: white; }
+        .btn-reject { background: #dc2626; color: white; }
+        .messages { margin-bottom: 1.5rem; }
+        .message { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 0.75rem; font-weight: 600; }
+        .message.success { background: #dcfce7; color: #14532d; }
+        .message.error { background: #fee2e2; color: #991b1b; }
+        .message.warning { background: #fef3c7; color: #92400e; }
+        form { display: block; }
+        input, textarea { width: 100%; padding: 0.6rem 0.75rem; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 0.75rem; font-size: 1rem; }
+        label { font-weight: 600; display: block; margin-bottom: 0.25rem; }
+        footer { padding: 2rem; text-align: center; font-size: 0.85rem; color: #6b7280; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <strong>Leave Management Portal</strong><br>
+                <small>Welcome, {{ request.user.get_username }}</small>
+            </div>
+            <nav>
+                <a href="{% url 'leave_requests:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Dashboard</a>
+                <a href="{% url 'leave_requests:apply' %}" class="{% if request.resolver_match.url_name == 'apply' %}active{% endif %}">Apply for Leave</a>
+                <a href="{% url 'leave_requests:calendar' %}" class="{% if request.resolver_match.url_name == 'calendar' %}active{% endif %}">Calendar</a>
+                {% if request.user.is_staff %}
+                    <a href="{% url 'leave_requests:manager_dashboard' %}" class="{% if request.resolver_match.url_name == 'manager_dashboard' %}active{% endif %}">Manager Console</a>
+                    <a href="{% url 'leave_requests:manage_allocations' %}" class="{% if request.resolver_match.url_name == 'manage_allocations' %}active{% endif %}">Allocations</a>
+                    <a href="{% url 'leave_requests:analytics' %}" class="{% if request.resolver_match.url_name == 'analytics' %}active{% endif %}">Analytics</a>
+                    <a href="{% url 'admin:index' %}" target="_blank">Admin</a>
+                {% endif %}
+                <a href="{% url 'logout' %}">Logout</a>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        Crafted with Django · Demonstration leave management workflow
+    </footer>
+</body>
+</html>

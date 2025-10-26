@@ -1,0 +1,73 @@
+{% extends "leave_requests/base.html" %}
+{% block title %}Apply for Leave · Leave Management{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>Apply for Leave</h2>
+    <p>Remaining balance: <strong>{{ balance.remaining_days }}</strong> day(s)</p>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div>
+            <label for="{{ form.leave_type.id_for_label }}">Leave type</label>
+            {{ form.leave_type }}
+            {{ form.leave_type.errors }}
+        </div>
+        <div>
+            <label for="{{ form.start_date.id_for_label }}">Start date</label>
+            {{ form.start_date }}
+            {{ form.start_date.errors }}
+        </div>
+        <div>
+            <label for="{{ form.end_date.id_for_label }}">End date</label>
+            {{ form.end_date }}
+            {{ form.end_date.errors }}
+        </div>
+        <div>
+            <label for="{{ form.reason.id_for_label }}">Reason</label>
+            {{ form.reason }}
+            {{ form.reason.errors }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Request</button>
+        <a class="btn btn-secondary" href="{% url 'leave_requests:dashboard' %}">Cancel</a>
+    </form>
+</section>
+
+<section class="card">
+    <h3>How the system evaluates your request</h3>
+    <p>The remaining leave days are calculated automatically by deducting approved leave from your allocation. If you do not have enough days, the request is blocked before reaching your manager.</p>
+    <p>Overlapping requests (pending or approved) are prevented to avoid scheduling conflicts. For changes, chat with your team lead so they can adjust the workflow.</p>
+    <h4 style="margin-top:1.5rem;">Leave type overview</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Policy Highlights</th>
+                <th>Remaining</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quota in balance.quotas.all %}
+                <tr>
+                    <td>{{ quota.leave_type.name }}</td>
+                    <td>
+                        Max {{ quota.leave_type.max_days_per_request }} day(s) per request ·
+                        {% if quota.leave_type.min_notice_days %}
+                            Request {{ quota.leave_type.min_notice_days }} day(s) in advance
+                        {% else %}
+                            No advance notice required
+                        {% endif %}
+                        {% if quota.leave_type.requires_documentation %}
+                            · Documentation required
+                        {% endif %}
+                        {% if not quota.leave_type.is_paid %}
+                            · Unpaid
+                        {% endif %}
+                    </td>
+                    <td>{{ quota.remaining_days }} day(s)</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

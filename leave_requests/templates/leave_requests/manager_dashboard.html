@@ -1,0 +1,87 @@
+{% extends "leave_requests/base.html" %}
+{% block title %}Manager Console · Leave Management{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>Pending Approvals</h2>
+    {% if pending_approvals %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Leave Type</th>
+                    <th>Dates</th>
+                    <th>Days</th>
+                    <th>Reason</th>
+                    <th>Stage</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for approval in pending_approvals %}
+                    {% with request_item=approval.request %}
+                    <tr>
+                        <td>{{ request_item.user.get_full_name|default:request_item.user.username }}</td>
+                        <td>{{ request_item.leave_type.name }}</td>
+                        <td>{{ request_item.start_date }} → {{ request_item.end_date }}</td>
+                        <td>{{ request_item.total_days }}</td>
+                        <td>{{ request_item.reason }}</td>
+                        <td><span class="badge pending">{{ approval.get_role_display }}</span></td>
+                        <td>
+                            <form method="post" action="{% url 'leave_requests:review_approval' approval.pk 'approve' %}" style="margin-bottom:0.5rem;">
+                                {% csrf_token %}
+                                {{ decision_form.manager_comment }}
+                                <button type="submit" class="btn btn-approve" style="margin-top:0.5rem;">Approve</button>
+                            </form>
+                            <form method="post" action="{% url 'leave_requests:review_approval' approval.pk 'reject' %}">
+                                {% csrf_token %}
+                                {{ decision_form.manager_comment }}
+                                <button type="submit" class="btn btn-reject" style="margin-top:0.5rem;">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No pending approvals. Enjoy a well-deserved break!</p>
+    {% endif %}
+</section>
+
+<section class="card">
+    <h2>Your Recent Decisions</h2>
+    {% if recent_decisions %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Leave Type</th>
+                    <th>Dates</th>
+                    <th>Decision</th>
+                    <th>Comment</th>
+                    <th>Decided</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for approval in recent_decisions %}
+                    <tr>
+                        <td>{{ approval.request.user.get_full_name|default:approval.request.user.username }}</td>
+                        <td>{{ approval.request.leave_type.name }}</td>
+                        <td>{{ approval.request.start_date }} → {{ approval.request.end_date }}</td>
+                        <td>
+                            <span class="badge {% if approval.status == 'APPROVED' %}approved{% else %}rejected{% endif %}">
+                                {{ approval.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ approval.comment|default:"No comment" }}</td>
+                        <td>{{ approval.decided_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No decisions recorded yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

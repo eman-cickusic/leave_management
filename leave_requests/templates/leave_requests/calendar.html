@@ -1,0 +1,50 @@
+{% extends "leave_requests/base.html" %}
+{% block title %}Team Calendar · Leave Management{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <a class="btn btn-secondary" href="{{ previous_month_url }}">&larr; Previous</a>
+        <h2 style="margin:0;">{{ month_name }} {{ year }}</h2>
+        <a class="btn btn-secondary" href="{{ next_month_url }}">Next &rarr;</a>
+    </div>
+</section>
+
+<section class="card">
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sunday</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                    <th>Saturday</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in weeks %}
+                    <tr>
+                        {% for day in week %}
+                            <td style="vertical-align:top; background-color: {% if not day.in_month %}#f9fafb{% else %}white{% endif %}; min-width:160px;">
+                                <div style="font-weight:700; margin-bottom:0.5rem;">{{ day.date.day }}</div>
+                                {% for event in day.events %}
+                                    {% if event.type == 'holiday' %}
+                                        <div class="badge approved" style="display:block; margin-bottom:0.25rem;">Holiday · {{ event.label }}</div>
+                                    {% else %}
+                                        <div class="badge pending" style="display:block; margin-bottom:0.25rem;">{{ event.label }}</div>
+                                    {% endif %}
+                                {% empty %}
+                                    <div style="color:#9ca3af;">—</div>
+                                {% endfor %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

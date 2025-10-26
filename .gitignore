@@ -1,0 +1,7 @@
+# Python
+__pycache__/\n*.py[cod]\n*.pyo\n*.pyd\n*.pytest_cache/\n*.log\n\n# Virtual environments
+venv/\n.venv/\nenv/\n\n# Local databases
+db.sqlite3\n*.sqlite3\n\n# IDE metadata
+.idea/\n.vscode/\n\n# Django collectstatic
+staticfiles/\n\n# Environment files
+.env\n

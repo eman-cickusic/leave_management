@@ -1,0 +1,112 @@
+{% extends "leave_requests/base.html" %}
+{% block title %}Analytics · Leave Management{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>Filter</h2>
+    <form method="get">
+        <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+            <div>
+                <label for="id_year">Year</label>
+                {{ filter_form.year }}
+            </div>
+            <div>
+                <label for="id_month">Month (optional)</label>
+                {{ filter_form.month }}
+            </div>
+        </div>
+        {{ filter_form.non_field_errors }}
+        <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Apply Filters</button>
+    </form>
+</section>
+
+<section class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">Insights ({{ period_start }} – {{ period_end }})</h2>
+        <div>
+            <a class="btn btn-secondary" href="{% url 'leave_requests:analytics_export_csv' %}?{{ export_params }}">Export CSV</a>
+            <a class="btn btn-secondary" href="{% url 'leave_requests:analytics_export_pdf' %}?{{ export_params }}">Export PDF</a>
+        </div>
+    </div>
+    <p>Total approved days: <strong>{{ total_days }}</strong></p>
+    <div class="grid two">
+        <section>
+            <h3>By leave type</h3>
+            {% if type_totals %}
+                <ul>
+                    {% for leave_type, days in type_totals %}
+                        <li><strong>{{ leave_type }}</strong>: {{ days }} day(s)</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No approved leave in this period.</p>
+            {% endif %}
+        </section>
+        <section>
+            <h3>By employee</h3>
+            {% if user_totals %}
+                <ul>
+                    {% for employee, days in user_totals %}
+                        <li><strong>{{ employee }}</strong>: {{ days }} day(s)</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No employee usage recorded.</p>
+            {% endif %}
+        </section>
+    </div>
+    <section style="margin-top:1.5rem;">
+        <h3>Monthly totals</h3>
+        {% if monthly_totals %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Total days approved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for month, days in monthly_totals %}
+                        <tr>
+                            <td>{{ month }}</td>
+                            <td>{{ days }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No monthly data to display.</p>
+        {% endif %}
+    </section>
+</section>
+
+<section class="card">
+    <h2>Approved Requests in Period</h2>
+    {% if requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>Leave Type</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Days</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request_obj in requests %}
+                    <tr>
+                        <td>{{ request_obj.user.get_full_name|default:request_obj.user.username }}</td>
+                        <td>{{ request_obj.leave_type.name }}</td>
+                        <td>{{ request_obj.start_date }}</td>
+                        <td>{{ request_obj.end_date }}</td>
+                        <td>{{ request_obj.total_days }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No approved leave during this timeframe.</p>
+    {% endif %}
+</section>
+{% endblock %}

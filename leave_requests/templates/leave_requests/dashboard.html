@@ -1,0 +1,137 @@
+{% extends "leave_requests/base.html" %}
+{% block title %}Employee Dashboard · Leave Management{% endblock %}
+
+{% block content %}
+<div class="grid two">
+    <section class="card">
+        <h2>Total Time Off Snapshot</h2>
+        <p style="font-size:2.5rem; margin:0.25rem 0;">{{ balance.remaining_days }} <span style="font-size:1rem; color:#6b7280;">day(s) available</span></p>
+        <p>Total allocation across all leave types: {{ balance.total_allocated_days }}</p>
+        <p style="color:#6b7280;">Plan ahead and keep your team updated—great communication makes approvals effortless.</p>
+        <a class="btn btn-primary" href="{% url 'leave_requests:apply' %}">Request Time Off</a>
+    </section>
+    <section class="card">
+        <h2>Leave Type Balances</h2>
+        {% if quotas %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Allocation</th>
+                        <th>Used</th>
+                        <th>Remaining</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quota in quotas %}
+                        <tr>
+                            <td>{{ quota.leave_type.name }}</td>
+                            <td>{{ quota.total_available }}</td>
+                            <td>{{ quota.used }}</td>
+                            <td>{{ quota.remaining_days }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Your leave quotas will appear here once configured.</p>
+        {% endif %}
+    </section>
+</div>
+
+<section class="card">
+    <h2>Pending & In-Review Requests</h2>
+    {% if pending_requests %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Leave Type</th>
+                    <th>Dates</th>
+                    <th>Duration</th>
+                    <th>Current Reviewer</th>
+                    <th>Policy Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request_item in pending_requests %}
+                    <tr>
+                        <td>{{ request_item.leave_type.name }}</td>
+                        <td>{{ request_item.start_date }} → {{ request_item.end_date }}</td>
+                        <td>{{ request_item.total_days }} day(s)</td>
+                        <td>
+                            {% with approval=request_item.current_approval %}
+                                {% if approval %}
+                                    <span class="badge pending">{{ approval.get_role_display }} review</span>
+                                {% else %}
+                                    <span class="badge pending">Queued</span>
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        <td>{{ request_item.policy_notes|linebreaksbr }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>You currently have no leave awaiting approval.</p>
+    {% endif %}
+</section>
+
+<div class="grid two">
+    <section class="card">
+        <h2>Approved Requests</h2>
+        {% if approved_requests %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Leave Type</th>
+                        <th>Dates</th>
+                        <th>Days</th>
+                        <th>Final Reviewer</th>
+                        <th>Comment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request_item in approved_requests %}
+                        <tr>
+                            <td>{{ request_item.leave_type.name }}</td>
+                            <td>{{ request_item.start_date }} → {{ request_item.end_date }}</td>
+                            <td>{{ request_item.total_days }}</td>
+                            <td>{{ request_item.reviewed_by|default:"—" }}</td>
+                            <td>{{ request_item.manager_comment|default:"No comment" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No approved leave just yet—time to plan a recharge!</p>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2>Rejected Requests</h2>
+        {% if rejected_requests %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Leave Type</th>
+                        <th>Dates</th>
+                        <th>Reviewer Feedback</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request_item in rejected_requests %}
+                        <tr>
+                            <td>{{ request_item.leave_type.name }}</td>
+                            <td>{{ request_item.start_date }} → {{ request_item.end_date }}</td>
+                            <td>{{ request_item.manager_comment|default:"No feedback provided" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No rejections on record. Keep aligning requests with project needs!</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "leave_requests/base.html" %}
+{% block title %}Adjust Allocations · Leave Management{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h2>Select Employee</h2>
+    <form method="get" action="{% url 'leave_requests:manage_allocations' %}">
+        {{ select_form.as_p }}
+        <button type="submit" class="btn btn-primary">Load Allocations</button>
+    </form>
+</section>
+
+{% if employee_balance %}
+    <section class="card">
+        <h2>Adjust Allocations for {{ employee_balance.user.get_full_name|default:employee_balance.user.username }}</h2>
+        <p style="margin-top:0; color:#6b7280;">Last adjusted {{ employee_balance.last_adjusted_at|default:"never" }} by {{ employee_balance.last_adjusted_by|default:"system" }}.</p>
+        <form method="post" action="{% url 'leave_requests:manage_allocations' %}?employee={{ employee_balance.user.pk }}">
+            {% csrf_token %}
+            {{ quota_formset.management_form }}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Leave Type</th>
+                        <th>Allocation</th>
+                        <th>Carried Over</th>
+                        <th>Emergency Grant</th>
+                        <th>Used</th>
+                        <th>Remaining</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in quota_formset %}
+                        <tr>
+                            <td>{{ form.instance.leave_type.name }}</td>
+                            <td>{{ form.allocation }}{{ form.allocation.errors }}</td>
+                            <td>{{ form.carried_over }}{{ form.carried_over.errors }}</td>
+                            <td>{{ form.emergency_grant }}{{ form.emergency_grant.errors }}</td>
+                            <td>{{ form.instance.used }}</td>
+                            <td>{{ form.instance.remaining_days }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-primary" style="margin-top:1rem;">Save Changes</button>
+        </form>
+    </section>
+{% endif %}
+{% endblock %}
