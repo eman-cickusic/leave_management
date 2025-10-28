@@ -7,8 +7,8 @@ A Django-based employee attendance and leave management portal supporting multi-
 - Git
 
 ## Setup
-`ash
-git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git
+
+git clone https://github.com/eman-cickusic/leave_management.git
 cd YOUR-REPO
 python -m venv venv
 # Windows
